@@ -116,6 +116,17 @@ The app keeps realtime (SSE) and a 30-second scheduler in memory, so it needs **
 4. Run `npm run seed` once from the platform shell. This creates the schema, the admin and the demo data, and writes `DEMO_LOGINS.md` on the server. Sign in as admin and change the passwords, or create your own admin, then remove the demo users.
 5. Add your domain, e.g. `kerem.club`, in the platform's dashboard and point a CNAME at it. HTTPS is automatic.
 
+### Render (free plan, demo deployment)
+
+The free plan has no persistent disk, so the database lives in `/tmp` and is recreated and re-seeded on every start:
+
+- Build command: `npm ci --include=dev && npm run build`
+- Start command: `npm run start:prod` (runs `scripts/start-prod.sh`: creates the schema, seeds demo data if the DB is empty, then `next start -H 0.0.0.0 -p $PORT`)
+- Health check path: `/api/health`
+- Env vars: `NODE_ENV=production`, `COOKIE_SECURE=1`, `DATABASE_URL=file:/tmp/kerem/kerem.db`, `UPLOAD_DIR=/tmp/kerem/uploads`, `ADMIN_PASSWORD`, `DEMO_PASSWORD` (the seed uses these instead of random passwords and does not write `DEMO_LOGINS.md`), optional `AI_*`.
+
+All data resets on restart, redeploy or idle spin-down. For real use, move to a paid instance with a persistent disk (see above) or Postgres.
+
 **Vercel / serverless** also works, with these changes:
 
 - Use Turso (`DATABASE_URL=libsql://…`) or Postgres.
