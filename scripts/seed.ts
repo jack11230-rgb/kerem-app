@@ -269,4 +269,23 @@ async function promoteOwners() {
   console.log(`[seed] OWNER_EMAILS: ${list.length} configured, ${r.rowsAffected} promoted to admin`);
 }
 
-main().then(async () => { await promoteOwners(); }).then(() => process.exit(0), (e) => { console.error(e); process.exit(1); });
+/* Make sure invite codes listed in EXTRA_INVITE_CODES exist (format: CODE[:uses][,CODE[:uses]...]).
+ * Codes are normalised like the invite check does (upper-case, letters/digits only), so KRM-AB12 is stored as KRMAB12. */
+async function ensureExtraInvites() {
+  const raw = process.env.EXTRA_INVITE_CODES || '';
+  const items = raw.split(/[,\s;]+/).map((x) => x.trim()).filter(Boolean);
+  if (!items.length) return;
+  const { client } = await import('../lib/db');
+  let added = 0;
+  for (const it of items) {
+    const [c, u] = it.split(':');
+    const code = (c || '').toUpperCase().replace(/[^A-Z0-9]/g, '');
+    const uses = Math.max(1, Math.min(10000, parseInt(u || '1', 10) || 1));
+    if (!code) continue;
+    const r = await client.execute({ sql: `INSERT OR IGNORE INTO invites (code, created_by, note, email, max_uses, uses, role, expires_at, created_at) VALUES (?, NULL, ?, NULL, ?, 0, 'member', NULL, ?)`, args: [code, 'Personal invitation', uses, Date.now()] });
+    added += r.rowsAffected;
+  }
+  console.log(`[seed] EXTRA_INVITE_CODES: ${items.length} configured, ${added} created`);
+}
+
+main().then(async () => { await promoteOwners(); await ensureExtraInvites(); }).then(() => process.exit(0), (e) => { console.error(e); process.exit(1); });

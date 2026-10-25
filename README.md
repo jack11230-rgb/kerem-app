@@ -72,6 +72,7 @@ It saves screenshots at 390×844 to `screenshots/`. Run it against a freshly see
 | `UPLOAD_DIR` | `./data/uploads` | Where admin media uploads are stored |
 | `COOKIE_SECURE` | — | Set to `1` behind HTTPS to mark the session cookie `Secure` |
 | `OWNER_EMAILS` | — | Comma-separated emails that always get the admin role (on signup, login and every start). Handy when the DB resets, e.g. Render free plan |
+| `EXTRA_INVITE_CODES` | — | Comma-separated `CODE:uses` invite codes created at start if missing (e.g. `KRM-AB12:5`; dashes are ignored when checking codes) |
 | `CRON_SECRET` | — | Protects `GET /api/cron?key=…`, used on hosts without a long-running process |
 
 ---
