@@ -71,6 +71,7 @@ It saves screenshots at 390×844 to `screenshots/`. Run it against a freshly see
 | `REMINDER_MINUTES` | `15` | Lead time for the "Shiur starts in N min" notification |
 | `UPLOAD_DIR` | `./data/uploads` | Where admin media uploads are stored |
 | `COOKIE_SECURE` | — | Set to `1` behind HTTPS to mark the session cookie `Secure` |
+| `OWNER_EMAILS` | — | Comma-separated emails that always get the admin role (on signup, login and every start). Handy when the DB resets, e.g. Render free plan |
 | `CRON_SECRET` | — | Protects `GET /api/cron?key=…`, used on hosts without a long-running process |
 
 ---

@@ -5,6 +5,7 @@ import { hashPassword, createSession, publicUser } from '@/lib/auth';
 import { checkInvite } from '@/lib/invites';
 import { uid, initialsOf } from '@/lib/util';
 import { notifyAdmins } from '@/lib/notify';
+import { isOwnerEmail } from '@/lib/owners';
 
 export const POST = publicApi(async (req) => {
   const b = await body(req);
@@ -21,7 +22,7 @@ export const POST = publicApi(async (req) => {
   const id = uid();
   await db.insert(schema.users).values({
     id, email, name, passwordHash: await hashPassword(password), initials: initialsOf(name), color: (Number(n[0]?.n ?? 0) % 6) + 1,
-    role: r.invite.role === 'admin' ? 'admin' : 'member', title: 'New Member', bio: '', interests: '[]', isDemo: 0, createdAt: Date.now(),
+    role: r.invite.role === 'admin' || isOwnerEmail(email) ? 'admin' : 'member', title: 'New Member', bio: '', interests: '[]', isDemo: 0, createdAt: Date.now(),
   });
   await db.update(schema.invites).set({ uses: r.invite.uses + 1 }).where(eq(schema.invites.code, r.invite.code));
   await db.update(schema.applications).set({ status: 'approved' }).where(eq(schema.applications.inviteCode, r.invite.code));

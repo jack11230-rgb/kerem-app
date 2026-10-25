@@ -259,4 +259,14 @@ The other demo members (${demoOthers.map((u) => u.name).join(', ')}) have random
     console.log('Logins written to DEMO_LOGINS.md');
   }
 }
-main().then(() => process.exit(0), (e) => { console.error(e); process.exit(1); });
+/* Give admin to existing users listed in OWNER_EMAILS (runs on every production start). */
+async function promoteOwners() {
+  const { ownerEmails } = await import('../lib/owners');
+  const list = ownerEmails();
+  if (!list.length) return;
+  const { client } = await import('../lib/db');
+  const r = await client.execute({ sql: `UPDATE users SET role = 'admin' WHERE lower(email) IN (${list.map(() => '?').join(',')}) AND role != 'admin'`, args: list });
+  console.log(`[seed] OWNER_EMAILS: ${list.length} configured, ${r.rowsAffected} promoted to admin`);
+}
+
+main().then(async () => { await promoteOwners(); }).then(() => process.exit(0), (e) => { console.error(e); process.exit(1); });
