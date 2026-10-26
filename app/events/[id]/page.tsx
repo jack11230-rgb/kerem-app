@@ -56,7 +56,7 @@ export default function EventPage({ params }: { params: Promise<{ id: string }> 
         {ev.status === 'ended' && ev.summary ? <Link href={`/events/${ev.id}/summary`} className="btn gold block lg mt10">✦ View discussion summary</Link> : null}
         {ev.status === 'ended' && ev.libraryItemId ? <Link href={`/library/${ev.libraryItemId}`} className="btn ghost block mt10" style={{ height: 44 }}>Open in Library</Link> : null}
         {admin && ev.status === 'scheduled' ? <button className="btn gold block mt10" style={{ height: 44 }} onClick={start} data-testid="start-live">Start live shiur now</button> : null}
-        {admin ? <Link href={`/admin?tab=events&edit=${ev.id}`} className="btn ghost block mt10" style={{ height: 40 }}><Icon k="edit" s={15} /> Edit event</Link> : null}
+        {admin ? <Link href={`/admin?tab=events&edit=${ev.id}`} className="btn ghost block mt10" style={{ height: 40 }} data-testid="edit-event"><Icon k="edit" s={15} /> Edit event</Link> : null}
         {going.length ? (
           <>
             <div className="eyebrow mt20 mb10">Who’s going · {going.length}</div>

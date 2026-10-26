@@ -206,6 +206,40 @@ await step('profile, notifications, members, admin screens', async () => {
   const r = await B.request.get(`${BASE}/api/admin/overview`); if (r.status() !== 403 && r.status() !== 401) throw new Error('member reached admin API: ' + r.status());
 });
 
+await step('events: only admins can create/edit/delete; members view + RSVP', async () => {
+  const expect403 = async (label, resP) => { const r = await resP; if (r.status() !== 403) throw new Error(`member ${label}: expected 403, got ${r.status()}`); };
+  const evs = (await (await B.request.get(`${BASE}/api/events`)).json()).events;
+  const target = evs.find((e) => e.status === 'scheduled') || evs[0];
+  // server: member is refused every write
+  await expect403('POST /api/events', B.request.post(`${BASE}/api/events`, { data: { title: 'Member event', speaker: 'Avi', startsAt: Date.now() + 86400_000 } }));
+  await expect403('PATCH /api/events/:id', B.request.patch(`${BASE}/api/events/${target.id}`, { data: { title: 'Hijacked' } }));
+  await expect403('DELETE /api/events/:id', B.request.delete(`${BASE}/api/events/${target.id}`));
+  await expect403('POST /api/events/:id/live', B.request.post(`${BASE}/api/events/${target.id}/live`, { data: { action: 'start' } }));
+  const still = await (await B.request.get(`${BASE}/api/events/${target.id}`)).json();
+  if (still.event?.title !== target.title || still.event?.status !== target.status) throw new Error('member write changed the event');
+  // UI: member sees the event and RSVP, but no admin controls; /admin bounces
+  await B.goto(`${BASE}/events/${target.id}`);
+  await B.locator('[data-testid^=rsvp-]').first().waitFor();
+  if (await B.getByTestId('edit-event').count()) throw new Error('member sees Edit event');
+  if (await B.getByTestId('start-live').count()) throw new Error('member sees Start live');
+  const rsvp = await B.request.post(`${BASE}/api/events/${target.id}/rsvp`); if (!rsvp.ok()) throw new Error('member RSVP failed: ' + rsvp.status());
+  await B.request.post(`${BASE}/api/events/${target.id}/rsvp`); // toggle back
+  await B.goto(`${BASE}/admin?tab=events`); await B.waitForURL(`${BASE}/`);
+  if (await B.getByTestId('new-event').count()) throw new Error('member sees New event');
+  // admin keeps full access: UI controls + create, edit, delete
+  await Adm.goto(`${BASE}/events/${target.id}`); await Adm.getByTestId('edit-event').waitFor();
+  await Adm.goto(`${BASE}/admin?tab=events`); await Adm.getByTestId('new-event').waitFor();
+  const c = await Adm.request.post(`${BASE}/api/events`, { data: { title: `E2E admin event ${stamp}`, speaker: 'Rabbi Test', kind: 'shiur', startsAt: Date.now() + 5 * 86400_000 } });
+  if (!c.ok()) throw new Error('admin create ' + c.status());
+  const { id } = await c.json();
+  const u = await Adm.request.patch(`${BASE}/api/events/${id}`, { data: { title: `E2E admin event ${stamp} (edited)` } });
+  if (!u.ok()) throw new Error('admin edit ' + u.status());
+  const seen = await (await B.request.get(`${BASE}/api/events/${id}`)).json();
+  if (!seen.event?.title?.endsWith('(edited)')) throw new Error('member cannot see admin-edited event');
+  const d = await Adm.request.delete(`${BASE}/api/events/${id}`); if (!d.ok()) throw new Error('admin delete ' + d.status());
+  const gone = await Adm.request.get(`${BASE}/api/events/${id}`); if (gone.status() !== 404) throw new Error('deleted event still there: ' + gone.status());
+});
+
 await step('admin creates invite + approves application', async () => {
   const r = await Adm.request.post(`${BASE}/api/admin/invites`, { data: { note: 'e2e', maxUses: 1 } });
   if (!r.ok()) throw new Error('invite ' + r.status());
