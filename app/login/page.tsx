@@ -58,7 +58,7 @@ function Gate() {
 
   return (
     <div className="gate">
-      <div style={{ marginTop: 18 }}><Logo s={84} /></div>
+      <div style={{ marginTop: 10, display: 'flex', justifyContent: 'center' }}><Logo s={124} style={{ filter: 'drop-shadow(0 6px 22px rgba(201,164,92,.18))' }} /></div>
       <div className="sc" style={{ fontSize: 40, letterSpacing: '.32em', color: 'var(--gold2)', marginTop: 18, paddingLeft: 12 }}>KEREM</div>
       <div className="corm" style={{ fontSize: 21, fontStyle: 'italic', color: '#D9CFBB', marginTop: 6, lineHeight: 1.3 }}>A private circle for Torah,<br />philosophy &amp; conversation</div>
       <div className="divider" style={{ margin: '36px 0 14px' }}><i /><span className="eyebrow">{mode === 'invite' ? 'By invitation only' : 'Members sign in'}</span><i /></div>

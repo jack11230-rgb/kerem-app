@@ -1,7 +1,7 @@
 'use client';
 import Link from 'next/link';
 import { useCallback, useEffect, useState } from 'react';
-import { Bell, Icon, TabBar, Loading } from '@/components/ui';
+import { Bell, Icon, TabBar, Loading, Logo } from '@/components/ui';
 import { EvRow, FeaturedCard, type Ev } from '@/components/events';
 import { useMe, useStream } from '@/components/Providers';
 import { api, greeting, fmtTime, rel } from '@/lib/client';
@@ -29,9 +29,12 @@ export default function Home() {
     <>
       <main className="page">
         <div className="top">
-          <div>
+          <div className="row gap12" style={{ minWidth: 0 }}>
+          <Logo s={46} />
+          <div style={{ minWidth: 0 }}>
             <div className="eyebrow">{today.toLocaleDateString([], { weekday: 'long' })} · {today.toLocaleDateString([], { month: 'short', day: 'numeric' })}</div>
             <div className="h1" style={{ marginTop: 6 }}>{greeting()}, {me?.name.split(' ')[0] ?? ''}</div>
+          </div>
           </div>
           <div className="row gap8"><Link href="/calendar" className="iconbtn" aria-label="Calendar"><Icon k="cal" s={19} /></Link><Bell /></div>
         </div>

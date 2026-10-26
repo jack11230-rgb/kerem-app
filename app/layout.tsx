@@ -19,7 +19,10 @@ export const metadata: Metadata = {
   description: 'Members club for shiurim, lectures and philosophical conversation.',
   manifest: '/manifest.webmanifest',
   appleWebApp: { capable: true, title: 'Kerem', statusBarStyle: 'black-translucent' },
-  icons: { icon: '/icons/icon-192.png', apple: '/icons/apple-touch-icon.png' },
+  icons: {
+    icon: [{ url: '/favicon.ico', sizes: 'any' }, { url: '/favicon.png', type: 'image/png', sizes: '48x48' }, { url: '/icons/icon-192.png', type: 'image/png', sizes: '192x192' }],
+    apple: [{ url: '/icons/apple-touch-icon.png', sizes: '180x180' }],
+  },
 };
 export const viewport: Viewport = { themeColor: '#0B1426', width: 'device-width', initialScale: 1, viewportFit: 'cover' };
 

@@ -15,7 +15,7 @@ export default function Apply() {
   };
   return (
     <div className="gate" style={{ textAlign: 'left' }}>
-      <div style={{ textAlign: 'center' }}><Logo s={56} /></div>
+      <div style={{ display: 'flex', justifyContent: 'center' }}><Logo s={72} /></div>
       <div className="h1" style={{ textAlign: 'center', marginTop: 14 }}>Request an invitation</div>
       <div className="corm" style={{ fontSize: 18, fontStyle: 'italic', color: '#D9CFBB', textAlign: 'center', marginTop: 6 }}>The committee reviews every application.</div>
       {done ? (
