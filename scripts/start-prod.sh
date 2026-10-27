@@ -20,4 +20,6 @@ esac
 mkdir -p "$UPLOAD_DIR"
 echo "[start] uploads: $UPLOAD_DIR"
 node node_modules/tsx/dist/cli.mjs scripts/seed.ts --if-empty
+# one-time removal of the leftover test member (idempotent; remove this line later)
+node node_modules/tsx/dist/cli.mjs scripts/cleanup-test-account.ts || true
 exec node node_modules/next/dist/bin/next start -H 0.0.0.0 -p "${PORT:-3000}"
