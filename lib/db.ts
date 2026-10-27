@@ -9,6 +9,10 @@ type G = { __keremClient?: Client; __keremDb?: LibSQLDatabase<typeof schema>; __
 const g = globalThis as unknown as G;
 
 function makeClient() {
+  // `next build` imports route modules while collecting page data. On Render the persistent
+  // disk (/data) is only mounted at runtime, not during the build, so never touch the real
+  // database file then: use a throwaway in-memory DB for the build phase.
+  if (process.env.NEXT_PHASE === 'phase-production-build') return createClient({ url: ':memory:' });
   const url = process.env.DATABASE_URL || 'file:./data/kerem.db';
   if (url.startsWith('file:')) {
     const p = url.slice(5);
